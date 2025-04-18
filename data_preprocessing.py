@@ -21,13 +21,9 @@ def load_data(use_cache=True):
         "meta_val": os.path.join(cache_dir, "meta_val.npy"),
         "meta_test": os.path.join(cache_dir, "meta_test.npy")
     }
-
-    # Load from cache if available
     if use_cache and all(os.path.exists(f) for f in cached_files.values()):
         print("Loading data from cache...")
         return tuple(np.load(f) for f in cached_files.values())
-
-    # Process from scratch
     print("Processing images from scratch...")
     df = pd.read_csv("bcn20000_cleaned_metadata.csv")
     df = df[df['diagnosis_1'].isin(['Benign', 'Malignant'])]
@@ -54,11 +50,9 @@ def load_data(use_cache=True):
                 img = img / 255.0
                 images.append(img.astype(dtype))
                 labels.append(row['label'])
-
-                # Metadata: age, sex, and diagnosis_1 encoded as numeric
                 ages.append(row['age_approx'] / 100.0)
                 sexes.append(1 if row['sex'] == 'Male' else 0)
-                diagnoses.append(row['label'])  # 0 for Benign, 1 for Malignant
+                diagnoses.append(row['label'])
             except Exception as e:
                 skipped_files += 1
                 print(f"Error processing {image_path}: {str(e)}")
@@ -71,7 +65,7 @@ def load_data(use_cache=True):
 
     X = np.array(images)
     y = np.array(labels)
-    meta = np.array(list(zip(ages, sexes, diagnoses)))  # Now has 3 features
+    meta = np.array(list(zip(ages, sexes, diagnoses)))
 
     X_train, X_temp, y_train, y_temp, meta_train, meta_temp = train_test_split(
         X, y, meta, test_size=0.30, random_state=42, stratify=y)

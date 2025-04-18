@@ -29,13 +29,9 @@ def create_model(image_shape=(128, 128, 3), meta_shape=(3,)) -> tf.keras.Model:
     x = layers.MaxPooling2D((2, 2))(x)
 
     x = layers.Flatten()(x)
-
-    # Metadata branch (age, sex, diagnosis_1)
     meta_input = Input(shape=meta_shape, name='meta_input')
     m = layers.Dense(32, activation='relu')(meta_input)
     m = layers.Dropout(0.3)(m)
-
-    # Combine both branches
     combined = layers.concatenate([x, m])
     combined = layers.Dense(512, activation='relu')(combined)
     combined = layers.Dropout(0.5)(combined)
